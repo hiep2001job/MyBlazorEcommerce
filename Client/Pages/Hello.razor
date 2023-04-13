@@ -1,0 +1,7 @@
+﻿@page "/hello/{id:int}"
+<h3>Hello @Id</h3>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+}

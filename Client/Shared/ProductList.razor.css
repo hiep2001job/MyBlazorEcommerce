@@ -29,6 +29,9 @@
 }
 
 @media (max-width:1023.98px){
+    .media {
+        flex-direction: column;
+    }
     .media-img{
         flex-direction:column;
     }
@@ -36,4 +39,9 @@
         width:100%;
         height:auto;
     }
+}
+
+.page-selection{
+    margin-right:15px;
+    margin-bottom:30px;
 }

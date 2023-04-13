@@ -1,8 +1,18 @@
 global using MyEcommerce.Shared;
 global using MyEcommerce.Server.Data;
 global using Microsoft.EntityFrameworkCore;
+global using MyEcommerce.Server.Services.ProductService;
+global using MyEcommerce.Server.Services.CategoryService;
+global using MyEcommerce.Server.Services.CartService;
+global using MyEcommerce.Server.Services.AuthService;
+global using MyEcommerce.Server.Services.OrderService;
+global using MyEcommerce.Server.Services.AddressService;
+global using MyEcommerce.Server.Services.PaymentService;
 
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +31,28 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
 
+//Services
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+//Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
+builder.Services.AddHttpContextAccessor();
 
 //Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -51,6 +83,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();

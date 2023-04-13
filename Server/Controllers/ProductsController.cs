@@ -8,17 +8,55 @@ namespace MyEcommerce.Server.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly IProductService _productService;
 
-        public ProductsController(DataContext context)
+        public ProductsController(IProductService productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<ActionResult<ServiceResponse<List<Product>>>> Get()
         {
-            return Ok(await _context.Products.ToListAsync());
+            var result = await _productService.GetProductsAsync();
+            return Ok(result);
         }
+
+        [HttpGet("{id}")] 
+        public async  Task<ActionResult<ServiceResponse<Product>>> GetProduct(int id)
+        {
+            var result = await _productService.GetProductAsync(id);
+            return Ok(result);
+            
+        }
+
+        [HttpGet("category/{categoryUrl}")]
+        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetProductCategory(string categoryUrl)
+        {
+            var result= await _productService.GeProductsByCategory(categoryUrl);
+            return Ok(result);
+        }
+
+        [HttpGet("search/{term}/{page}")]
+        public async Task<ActionResult<ServiceResponse<ProductSearchResult>>> SearchProducts(string term,int page=1)
+        {
+            var result = await _productService.SearchProduct(term,page);
+            return Ok(result);
+        }
+
+        [HttpGet("searchsuggestion/{term}")]
+        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetProductSearchSuggestion(string term)
+        {
+            var result = await _productService.SearchProductSuggestion(term);
+            return Ok(result);
+        }
+
+        [HttpGet("featured")]
+        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetFeaturedProducts()
+        {
+            var result = await _productService.GetFeaturedProducts();
+            return Ok(result);
+        }
+
     }
 }
